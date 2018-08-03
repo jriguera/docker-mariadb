@@ -92,7 +92,7 @@ fi
 
 # Get the last git commit made by this script
 LASTCOMMIT=$(git show-ref --tags -d | tail -n 1)
-if [ -n "$LASTCOMMIT" ]
+if [ -z "$LASTCOMMIT" ]
 then
     echo "* Changes since the beginning: "
     CHANGELOG=$(git log --pretty="%h %aI %s (%an)" | sed 's/^/- /')
