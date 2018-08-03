@@ -82,8 +82,8 @@ fi
 # Creating the release
 if [ -z "$VERSION" ]
 then
-    VERSION=$(sed -ne 's/^ARG.*VERSION=\(.*\)/\1/p' Dockerfile)
-    MYVERSION=$(sed -ne 's/^ARG.*MYVERSION=\(.*\)/\1/p' Dockerfile)
+    VERSION=$(sed -ne 's/^ARG.* VERSION=\(.*\)/\1/p' Dockerfile)
+    MYVERSION=$(sed -ne 's/^ARG.* MYVERSION=\(.*\)/\1/p' Dockerfile)
     [ -n "$MYVERSION" ] && VERSION="$VERSION-$MYVERSION"
     echo "* Creating final release version $VERSION (from Dockerfile) ..."
 else
@@ -92,8 +92,14 @@ fi
 
 # Get the last git commit made by this script
 LASTCOMMIT=$(git show-ref --tags -d | tail -n 1)
-echo "* Changes since last version with commit $LASTCOMMIT: "
-CHANGELOG=$(git log --pretty="%h %aI %s (%an)" $LASTCOMMIT..@ | sed 's/^/- /')
+if [ -n "$LASTCOMMIT" ]
+then
+    echo "* Changes since the beginning: "
+    CHANGELOG=$(git log --pretty="%h %aI %s (%an)" | sed 's/^/- /')
+else
+    echo "* Changes since last version with commit $LASTCOMMIT: "
+    CHANGELOG=$(git log --pretty="%h %aI %s (%an)" $LASTCOMMIT..@ | sed 's/^/- /')
+fi
 if [ -z "$CHANGELOG" ]
 then
     echo "ERROR: no commits since last release with commit $LASTCOMMIT!. Please "
