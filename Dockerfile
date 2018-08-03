@@ -1,11 +1,11 @@
 FROM arm32v6/alpine:3.8
 
 # docker build . -t mariadb
-# docker run --name mariadb-db  -v $(pwd)/datadir:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_DATABASE=casa -e MYSQL_USER=jose -e MYSQL_PASSWORD=hola -d mariadb
-# docker exec mariadb-db sh -c 'exec mysqldump --all-databases -uroot -p"secret"' > dump.sql
+# docker run --name db -p 3306:3306 -v $(pwd)/datadir:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_DATABASE=casa -e MYSQL_USER=jose -e MYSQL_PASSWORD=hola -d mariadb
+# docker exec mariadb sh -c 'exec mysqldump --all-databases -uroot -p"secret"' > dump.sql
 
 ARG VERSION=10.2
-ARG MYVERSION=jose0
+ARG MYVERSION=jose1
 ARG DATADIR=/var/lib/mysql
 ARG PORT=3306
 ARG UID=1000
