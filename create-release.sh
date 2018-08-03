@@ -110,10 +110,12 @@ echo "$CHANGELOG"
 
 echo "* Building Docker image with tag $NAME:$VERSION ..."
 $DOCKER build . -t $NAME
-$DOCKER tag $NAME $DOCKER_TAG:$VERSION
+$DOCKER tag $NAME $DOCKER_TAG
 
 # Uploading docker image
 echo "* Pusing Docker image to Docker Hub ..."
+$DOCKER push $DOCKER_TAG
+$DOCKER tag $NAME $DOCKER_TAG:$VERSION
 $DOCKER push $DOCKER_TAG
 
 # Create annotated tag
@@ -132,9 +134,15 @@ $DESCRIPTION
 
 $CHANGELOG
 
-## Using in a bosh Deployment
+## Using it
 
-    docker run --name ha -p 8123:8123  -v $(pwd)/config:/config -d jriguera/$RELEASE
+Given the docker image with name `mariadb`:
+
+    docker pull jriguera/mariadb:10.2-jose0
+
+    docker run --name db -p 3306:3306 -v $(pwd)/datadir:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_DATABASE=casa -e MYSQL_USER=jose -e MYSQL_PASSWORD=hola -d jriguera/mariadb
+
+    docker exec jriguera/mariadb sh -c 'exec mysqldump --all-databases -uroot -p"secret"' > dump.sql
 
 EOF
 )
