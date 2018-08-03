@@ -19,9 +19,14 @@ create-release.sh
 
 ### Run
 
+Given the docker image with name `mariadb`:
+
 ```
-docker run --name db  -v $(pwd)/datadir:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_DATABASE=casa -e MYSQL_USER=jose -e MYSQL_PASSWORD=hola -d mariadb
-docker exec mariadb sh -c 'exec mysqldump --all-databases -uroot -p"secret"' > dump.sql
+docker pull jriguera/mariadb:10.2-jose0
+
+docker run --name db -p 3306:3306 -v $(pwd)/datadir:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_DATABASE=casa -e MYSQL_USER=jose -e MYSQL_PASSWORD=hola -d jriguera/mariadb
+
+docker exec jriguera/mariadb sh -c 'exec mysqldump --all-databases -uroot -p"secret"' > dump.sql
 ```
 
 # Author
