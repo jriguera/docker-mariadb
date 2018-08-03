@@ -82,8 +82,8 @@ fi
 # Creating the release
 if [ -z "$VERSION" ]
 then
-    VERSION=$(sed -ne 's/^ARG.* VERSION=\(.*\)/\1/p' Dockerfile)
-    MYVERSION=$(sed -ne 's/^ARG.* MYVERSION=\(.*\)/\1/p' Dockerfile)
+    VERSION=$(sed -ne 's/^ARG.* VERSION=\(.*\)/\1/p' docker/Dockerfile)
+    MYVERSION=$(sed -ne 's/^ARG.* MYVERSION=\(.*\)/\1/p' docker/Dockerfile)
     [ -n "$MYVERSION" ] && VERSION="$VERSION-$MYVERSION"
     echo "* Creating final release version $VERSION (from Dockerfile) ..."
 else
@@ -108,15 +108,17 @@ then
 fi
 echo "$CHANGELOG"
 
-echo "* Building Docker image with tag $NAME:$VERSION ..."
-$DOCKER build . -t $NAME
-$DOCKER tag $NAME $DOCKER_TAG
+pushd docker
+    echo "* Building Docker image with tag $NAME:$VERSION ..."
+    $DOCKER build . -t $NAME
+    $DOCKER tag $NAME $DOCKER_TAG
 
-# Uploading docker image
-echo "* Pusing Docker image to Docker Hub ..."
-$DOCKER push $DOCKER_TAG
-$DOCKER tag $NAME $DOCKER_TAG:$VERSION
-$DOCKER push $DOCKER_TAG
+    # Uploading docker image
+    echo "* Pusing Docker image to Docker Hub ..."
+    $DOCKER push $DOCKER_TAG
+    $DOCKER tag $NAME $DOCKER_TAG:$VERSION
+    $DOCKER push $DOCKER_TAG
+popd
 
 # Create annotated tag
 echo "* Creating a git tag ... "
@@ -138,7 +140,7 @@ $CHANGELOG
 
 Given the docker image with name `mariadb`:
 
-    docker pull jriguera/mariadb:10.2-jose0
+    docker pull jriguera/mariadb
 
     docker run --name db -p 3306:3306 -v $(pwd)/datadir:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_DATABASE=casa -e MYSQL_USER=jose -e MYSQL_PASSWORD=hola -d jriguera/mariadb
 
