@@ -98,7 +98,7 @@ then
     CHANGELOG=$(git log --pretty="%h %aI %s (%an)" | sed 's/^/- /')
 else
     echo "* Changes since last version with commit $LASTCOMMIT: "
-    CHANGELOG=$(git log --pretty="%h %aI %s (%an)" $LASTCOMMIT..@ | sed 's/^/- /')
+    CHANGELOG=$(git log --pretty="%h %aI %s (%an)" "$(echo $LASTCOMMIT | cut -d' ' -f 1)..@" | sed 's/^/- /')
 fi
 if [ -z "$CHANGELOG" ]
 then
