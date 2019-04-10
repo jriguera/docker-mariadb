@@ -157,7 +157,7 @@ $CHANGELOG
 
 ## Using it
 
-Given the docker image with name `mariadb`:
+Given the docker image with name 'mariadb':
 
     docker pull jriguera/mariadb
 
