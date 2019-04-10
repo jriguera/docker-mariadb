@@ -5,9 +5,9 @@
 # docker exec mariadb sh -c 'exec mysqldump --all-databases -uroot -p"secret"' > dump.sql
 
 ARG ARCH=arm32v6
-FROM "${ARCH}/alpine:3.8"
+FROM "${ARCH}/alpine:3.9"
 
-ARG VERSION=10.2
+ARG VERSION=10.3.13
 ARG MYVERSION=jose2
 ARG DATADIR=/var/lib/mysql
 ARG PORT=3306
