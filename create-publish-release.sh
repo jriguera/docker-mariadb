@@ -7,7 +7,7 @@ set -e
 
 NAME="mariadb"
 DOCKER_TAG="jriguera/$NAME"
-RELEASE="rpi-mariadb"
+RELEASE="mariadb"
 DESCRIPTION="Docker image to run MariaDB in a Raspberry Pi"
 GITHUB_REPO="jriguera/docker-rpi-mariadb"
 
