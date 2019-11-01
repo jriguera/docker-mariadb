@@ -135,6 +135,8 @@ pushd docker
     $DOCKER push $DOCKER_TAG
     $DOCKER tag $NAME $DOCKER_TAG:$VERSION
     $DOCKER push $DOCKER_TAG
+
+    $DOCKER save -o "/tmp/$NAME-$VERSION.tgz" $DOCKER_TAG:$VERSION
 popd
 
 # Create annotated tag
@@ -155,7 +157,7 @@ $CHANGELOG
 
 ## Using it
 
-Given the docker image with name `mariadb`:
+Given the docker image with name 'mariadb':
 
     docker pull jriguera/mariadb
 
@@ -165,8 +167,7 @@ Given the docker image with name `mariadb`:
 
 EOF
 )
-printf -v DATA '{"tag_name": "v%s","target_commitish": "master","name": "v%s","body": %s,"draft": false, "prerelease": false}' "$VERSION" "$VERSION" "$(echo "$DESC" | $JQ -R -s '@text')"
-
+printf -v data '{"tag_name": "v%s","target_commitish": "master","name": "v%s","body": %s,"draft": false, "prerelease": false}' "$VERSION" "$VERSION" "$(echo "$DESC" | $JQ -R -s '@text')"
 releaseid=$($CURL -H "Authorization: token $GITHUB_TOKEN" -H "Content-Type: application/json" -XPOST --data "$data" "https://api.github.com/repos/$GITHUB_REPO/releases" | $JQ '.id')
 # Upload the release
 echo "* Uploading image to Github releases section ... "
