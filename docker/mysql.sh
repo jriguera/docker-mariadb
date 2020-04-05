@@ -91,7 +91,7 @@ then
 		file_env 'MYSQL_ROOT_PASSWORD' "$(pwgen -1 32)"
 		echo "${MYSQL_ROOT_PASSWORD}" > "${DATADIR}/root.password"
 
-		echo "* Initializing ${DATADIR} ..."
+		echo "* Initializing Datadir ..."
 		mysql_install_db --cross-bootstrap --auth-root-authentication-method=normal --skip-test-db --datadir="${DATADIR}" > /dev/null
 		# Start ephemeral mysql server just to create the DB
 		"$@" --silent-startup --skip-networking --skip-name-resolve --skip-host-cache --skip-slave-start --socket="${SOCKET}" &
