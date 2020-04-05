@@ -27,8 +27,8 @@ LABEL architecture="${ARCH}"
 
 ENV LANG=en_US.utf8
 ENV LC_ALL=C.UTF-8
-ENV MYSQL_PORT="${PORT}"
-ENV MYSQL_DATADIR="${DATADIR}"
+ENV PORT="${PORT}"
+ENV DATADIR="${DATADIR}"
 
 RUN set -xe                                                                 && \
     addgroup -g "${GUID}" mysql                                             && \
@@ -50,7 +50,8 @@ RUN set -xe                                                                 && \
     cp "/usr/share/zoneinfo/${TZ}" /etc/localtime                           && \
     echo "${TZ}" > /etc/timezone                                            && \
     # clean up
-    rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/* /var/lib/mysql/* /etc/mysql/*
+    rm -rf /var/lib/mysql/* /etc/mysql/* /etc/my.cnf*                       && \
+    rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*
 
 
 COPY *.sh /usr/local/bin/
@@ -61,6 +62,7 @@ RUN \
     ln -s /usr/local/bin/mysql.sh /usr/local/bin/docker-entrypoint.sh       && \
     ln -s /usr/local/bin/mysql.sh /docker-entrypoint.sh                     && \
     ln -s /usr/local/bin/mysql.sh /run.sh                                   && \
+    ln -s /usr/local/bin/healhcheck.sh /healhcheck.sh                       && \
     mkdir -p /docker-entrypoint-initdb.d                                    && \
     mkdir -p /var/run/mysqld                                                && \
     mkdir -p /etc/mysql/conf.d                                              && \
@@ -69,8 +71,10 @@ RUN \
 
 VOLUME "${DATADIR}"
 EXPOSE "${PORT}"
+HEALTHCHECK --interval=1m --timeout=3s --start-period=5m \
+    CMD /healthcheck.sh
 
 ENTRYPOINT ["/run.sh"]
 # Define default command
-CMD ["mysqld"]
+CMD ["mysqld", "--debug-gdb"]
 
