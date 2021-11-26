@@ -5,10 +5,10 @@
 # docker exec mariadb sh -c 'exec mysqldump --all-databases -uroot -p"secret"' > dump.sql
 
 ARG ARCH=arm32v6
-FROM "${ARCH}/alpine:3.11"
+FROM "${ARCH}/alpine:3.15"
 
-ARG VERSION=10.4
-ARG MYVERSION=jose2
+ARG VERSION=10.6
+ARG MYVERSION=jose1
 ARG DATADIR=/var/lib/mysql
 ARG PORT=3306
 ARG UID=1000
@@ -62,7 +62,7 @@ RUN \
     ln -s /usr/local/bin/mysql.sh /usr/local/bin/docker-entrypoint.sh       && \
     ln -s /usr/local/bin/mysql.sh /docker-entrypoint.sh                     && \
     ln -s /usr/local/bin/mysql.sh /run.sh                                   && \
-    ln -s /usr/local/bin/healhcheck.sh /healhcheck.sh                       && \
+    ln -s /usr/local/bin/healthcheck.sh /healthcheck.sh                     && \
     mkdir -p /docker-entrypoint-initdb.d                                    && \
     mkdir -p /var/run/mysqld                                                && \
     mkdir -p /etc/mysql/conf.d                                              && \
@@ -71,7 +71,7 @@ RUN \
 
 VOLUME "${DATADIR}"
 EXPOSE "${PORT}"
-HEALTHCHECK --interval=1m --timeout=3s --start-period=5m \
+HEALTHCHECK --interval=1m --timeout=10s --start-period=5m \
     CMD /healthcheck.sh
 
 ENTRYPOINT ["/run.sh"]
