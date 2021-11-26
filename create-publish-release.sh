@@ -168,7 +168,7 @@ Given the docker image with name 'mariadb':
 EOF
 )
 printf -v data '{"tag_name": "v%s","target_commitish": "master","name": "v%s","body": %s,"draft": false, "prerelease": false}' "$VERSION" "$VERSION" "$(echo "$DESC" | $JQ -R -s '@text')"
-releaseid=$($CURL -u "$GITHUB_USER:$GITHUB_TOKEN" -H "Content-Type: application/json" -XPOST --data "$DATA" "https://api.github.com/repos/$GITHUB_REPO/releases" | $JQ '.id')
+releaseid=$($CURL -u "$GITHUB_USER:$GITHUB_TOKEN" -H "Content-Type: application/json" -XPOST --data "$data" "https://api.github.com/repos/$GITHUB_REPO/releases" | $JQ '.id')
 # Upload the release
 echo "* Uploading image to Github releases section ... "
 echo -n "  URL: "
