@@ -1,10 +1,10 @@
-#!/bin/bash
-set -eo pipefail
+#!/usr/bin/env bash
 
-host="${MYSQL_ROOT_HOST:-127.0.0.1}"
-user="${MYSQL_USER:-root}"
-pass="${MYSQL_PASSWORD:-${MYSQL_ROOT_PASSWORD:-$(<${DATADIR}/root.password)}}"
+MARIADB_RUNDIR="${C_RUNDIR:-/run/mysqld}"
+MARIADB_ROOT_PASSWORD="${MARIADB_ROOT_PASSWORD:-${MYSQL_ROOT_PASSWORD:-}}"
+MARIADB_ROOT_HOST="${MARIADB_ROOT_HOST:-${MYSQL_ROOT_HOST:-localhost}}"
+MARIADB_SOCKET="${MARIADB_RUNDIR}/mysqld.sock"
+MARIADB_USER="${MARIADB_USER:-root}"
 
-mysqladmin -h"$host" -u"$user" -p"$pass"  ping  && exit 0
-exit 1
+exec mysqladmin --protocol=socket --socket=${MARIADB_SOCKET}  ping
 

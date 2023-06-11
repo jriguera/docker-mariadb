@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
 
-DOCKER=docker
+DOCKER="docker buildx build --platform linux/arm/v7,linux/arm64/v8,linux/amd64"
+# DOCKER="docker build"
 NAME="mariadb"
 
-ARCH=""
-case "$(uname -m)" in
-    armv7l)
-        ARCH='arm32v6'
-    ;;
-    x86_64|amd64)
-        ARCH='amd64'
-    ;;
-    *)
-        echo "ERROR: unsupported architecture: $(uname -m)"
-        exit 1
-    ;;
-esac
+
+HASH=$(git describe --all --long --dirty --abbrev=10 --tags --always)
+REPOSITORY=$(git remote get-url --push origin)
+TIME=$(TZ=UTC date '+%FT%T.%N%:z')
+BASE=alpine:3.18
+TZ=$(timedatectl | awk '/Time zone:/{ print $3 }')
+
+source VERSIONS
 
 pushd docker
-    $DOCKER build \
-      --build-arg ARCH=${ARCH} \
-      --build-arg TZ=$(timedatectl  | awk '/Time zone:/{ print $3 }') \
+    $DOCKER \
+      --build-arg REPOSITORY="${REPOSITORY}" \
+      --build-arg BASE="${BASE}" \
+      --build-arg VERSION="${VERSION}" \
+      --build-arg APPVERSION="${APPVERSION}" \
+      --build-arg HASH="${HASH}" \
+      --build-arg TIME="${TIME}" \
+      --build-arg TZ="${TZ}" \
       .  -t $NAME
 popd
-

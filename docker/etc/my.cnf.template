@@ -1,10 +1,26 @@
 [mariadb]
-# plugin_load_add = auth_socket
+plugin_maturity = stable
+$([[ -n "${MARIADB_PLUGINS_LIST[@]}" ]] && echo "plugin_load_add = `${MARIADB_PLUGINS_LIST[@]} | tr ' ' ','`")
 
 [mysqld]
-### Networking
-port = 3306
+# Kill iddle connections after 10min
+wait_timeout = ${MARIADB_WAIT_TIMEOUT:-600}
+max_connections = ${MARIADB_MAX_CONNECTIONS:-50}
 bind_address = 0.0.0.0
+
+# Logging
+pid_file = ${MARIADB_RUNDIR}/mysql.pid
+log_error = ${MARIADB_DATADIR}/error.log
+log_warnings = ${MARIADB_ENABLE_LOG_WARNINGS:-9}
+# General logging has huge performance penalty therefore is disabled by default
+general_log = ${MARIADB_ENABLE_LOG_FILES:-off}
+general_log_file = ${MARIADB_DATADIR}/error.log
+# Slow log queries
+slow_query_log = ${MARIADB_ENABLE_LOG_FILES:-off}
+slow_query_log_file = ${MARIADB_DATADIR}/error.log
+long_query_time = ${MARIADB_LONG_QUERY_TIME:-3}
+log_queries_not_using_indexes = on
+
 # When a client connects, the server will perform hostname resolution, 
 # and when DNS is slow, establishing the connection will become slow as well. 
 # It is therefore recommended to start the server with skip-name-resolve to 
@@ -13,94 +29,78 @@ bind_address = 0.0.0.0
 skip_name_resolve
 skip-host-cache
 
-### Security
-skip_show_database
+# Users cannot use show databases at all unless you have the SHOW DATABASES privilege
+skip_show_database = ${MARIADB_SKIP_SHOW_DATABASE:-off}
 
-### Logging
-pid_file = /var/run/mysqld/mysql.pid
-log_error = /var/lib/mysql/error.log
-log_warnings = 2
-# General logging has huge performance penalty therefore is disabled by default
-general_log = off
-general_log_file = /var/lib/mysql/error.log
-# Slow log
-slow_query_log = off
-slow_query_log_file = /var/lib/mysql/error.log
-long_query_time = 3
-log_queries_not_using_indexes = on
-
-### Charset
+# Charset
 character_set_server = utf8
 collation_server = utf8_unicode_ci
 skip-character-set-client-handshake
 
-### Engine
-datadir = /var/lib/mysql
+# Engine
+datadir = ${MARIADB_DATADIR}
 default-storage-engine = InnoDB
 innodb = FORCE
-innodb_data_home_dir = /var/lib/mysql
+innodb_data_home_dir = ${MARIADB_DATADIR}
 innodb_data_file_path = ibdata1:10M:autoextend
-innodb_log_group_home_dir = /var/lib/mysql
+innodb_log_group_home_dir = ${MARIADB_DATADIR}
 
-### Tuning
+# Tuning
 max_allowed_packet = 16M
-performance_schema = off
+performance_schema = ${MARIADB_PERFORMANCE_SCHEMA:-off}
 
 # Sort buffer is used to perform sorts for some ORDER BY and GROUP BY
 # queries. If sorted data does not fit into the sort buffer, a disk
 # based merge sort is used instead - See the "Sort_merge_passes"
 # status variable. Allocated per thread if sort is needed.
 # Comment out for now, the default in MariaDB 10.2 is 2M
-sort_buffer_size = 2M
+sort_buffer_size = 4M
 
 # Size of the buffer used for doing full table scans.
 # Allocated per thread, if a full scan is needed.
-read_buffer_size = 1M
+read_buffer_size = 2M
 
 # When reading rows in sorted order after a sort, the rows are read
 # through this buffer to avoid disk seeks. You can improve ORDER BY
 # performance a lot, if set this to a high value.
 # Allocated per thread, when needed.
-read_rnd_buffer_size = 8M
-join_buffer_size = 8M       # should be equal to read_rnd_buffer_size?
+read_rnd_buffer_size = 4M
+join_buffer_size = 4M
 key_buffer_size = 1M
 
 # Maximum allowed size for a single HEAP (in memory) table. This option
 # is a protection against the accidential creation of a very large HEAP
 # table which could otherwise use up all memory resources.
 max_heap_table_size = 32M
-tmp_table_size = 32M        # Should be equal to max_heap_table_size
+# Should be equal to max_heap_table_size
+tmp_table_size = 32M
 
-## Generally, it is unwise to set the query cache to be larger than 64-128M
-## as the costs associated with maintaining the cache outweigh the performance
-## gains.
-## The query cache is a well known bottleneck that can be seen even when
-## concurrency is moderate. The best option is to disable it from day 1
-## by setting query_cache_size = 0 (now the default on MySQL 5.6)
-## and to use other ways to speed up read queries: good indexing, adding
-## replicas to spread the read load or using an external cache.
-query_cache_type = on
-query_cache_size  = 16M
+# Generally, it is unwise to set the query cache to be larger than 64-128M
+# as the costs associated with maintaining the cache outweigh the performance
+# gains.
+# The query cache is a well known bottleneck that can be seen even when
+# concurrency is moderate. The best option is to disable it from day 1
+# by setting query_cache_size = 0 (now the default on MySQL 5.6)
+# and to use other ways to speed up read queries: good indexing, adding
+# replicas to spread the read load or using an external cache.
+query_cache_type = ${MARIADB_QUERY_CACHE_TYPE:-on}
+query_cache_size = ${MARIADB_QUERY_CACHE_SIZE:-16M}
 query_cache_strip_comments = on
 query_cache_min_res_unit = 2K
-# query_cache_limit = 256K      # Default is 1M now
-
-thread_cache_size = 16
-table_open_cache = 100
-table_definition_cache = 400
+query_cache_limit = 1M
 
 # InnoDB
 # The buffer pool is where data and indexes are cached: having it as large as possible
 # will ensure you use memory and not disks for most read operations.
 # Typical values are 50..75% of available RAM.
-innodb_buffer_pool_size = 200M
-innodb_log_file_size = 50M          # 25% of innodb_buffer_pool_size
+innodb_buffer_pool_size = ${MARIADB_INNODB_BUFFER_POOL_SIZE:-200M}
+# 25% of innodb_buffer_pool_size
+innodb_log_file_size = ${MARIADB_INNODB_LOG_FILE_SIZE:-50M}
 innodb_log_buffer_size = 4M
-innodb_flush_method = O_DIRECT
 
 # This setting should be set to 0 (disabled) on SSDs which do not have
 # any performance gains with sequential IO.
-innodb_flush_neighbors = 1
+innodb_flush_neighbors = 0
 
 # The default setting of 1 means that InnoDB is fully ACID compliant.
 # It is the best value when your primary concern is data safety, for instance on a master.
@@ -110,33 +110,31 @@ innodb_flush_neighbors = 1
 # flushed to the redo logs only once a second, but that can be acceptable on some situations
 # for a master and that is definitely a good value for a replica. 0 is even faster
 # but you are more likely to lose some data in case of a crash: it is only a good value for a replica.
-innodb_flush_log_at_trx_commit = 0
+innodb_flush_log_at_trx_commit = ${MARIADB_ACID_COMPLIANCE_LEVEL:-2}
+$([ ${MARIADB_ACID_COMPLIANCE_LEVEL} == 1 ] && echo "sync_binlog=1")
+$([ ${MARIADB_ACID_COMPLIANCE_LEVEL} == 1 ] && echo "sync_relay_log=1")
 
-# Conquer an InnoDB crash with `InnoDB: A long semaphore wait` error
+# Conquer an InnoDB crash with InnoDB: A long semaphore wait error
 # See http://stackoverflow.com/questions/24860111/warning-a-long-semaphore-wait
 # See http://www.markleith.co.uk/2009/05/13/innodb_stats_on_metadata-innodb_adaptive_hash_index/
 innodb_adaptive_hash_index = off
 
-# Kill iddle connections after 10min
-wait_timeout = 600
-
-
 [client]
-### Networking
 protocol = tcp
-### Charset
 default_character_set = utf8
 
+[mysql_upgrade]
+port = ${PORT:-3306}
+socket = ${MARIADB_RUNDIR}/mysqld.sock
 
 [mysqldump]
 max-allowed-packet = 16M
 
-
 # This group is read both both by the client and the server
 # use it for options that affect everything
 [client-server]
-port = 3306
-socket = /var/run/mysqld/mysqld.sock
+port = ${PORT:-3306}
+socket = ${MARIADB_RUNDIR}/mysqld.sock
 
 # Include additional files
-!includedir /etc/mysql/conf.d
+!includedir ${MARIADB_ETCDIR}/conf.d

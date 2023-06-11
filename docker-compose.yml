@@ -1,0 +1,19 @@
+version: '3.9'
+services:
+  mariadb:
+    image: mariadb
+    environment:
+      ## Only these variables are kept for compatibilty
+      # MYSQL_ROOT_PASSWORD: password
+      # MYSQL_DATABASE: mydatabase
+      # MYSQL_USER: user
+      # MYSQL_PASSWORD: password
+      MARIADB_ROOT_PASSWORD: hola
+      MARIADB_DATABASES: "one:userone:passwordone two:user2:password2"
+      DEBUG: 0
+    volumes:
+      - ./data:/var/lib/mysql
+      - ./config:/config
+    ports:
+      - "3306:3306"
+

@@ -1,0 +1,4 @@
+# File to define versions used in the image and to trigger the CI via push tags
+BASE=alpine:3.18
+VERSION=1.0.0
+APPVERSION=10.11
