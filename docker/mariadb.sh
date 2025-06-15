@@ -162,7 +162,7 @@ init_datadir() {
     { ${mysqlserver[@]} & } && pid=$!
     for timeout in {30..0}
     do
-        echo 'SELECT 1' | ${mysqlcli[@]} &>/dev/null && break
+        echo 'SELECT 1' | ${mysqlcli[@]} && break
         echo "* MariaDB init process in progress (${timeout})..."
         sleep 1
     done
@@ -378,7 +378,7 @@ then
     { ${mysqlserver[@]} & } && pid=$!
     for timeout in {120..0}
     do
-        echo 'SELECT 1' | ${mysqlcli[@]} &>/dev/null && break
+        echo 'SELECT 1' | ${mysqlcli[@]} && break
         echo "* MariaDB init process in progress (${timeout})..."
         sleep 1
     done
