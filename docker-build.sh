@@ -8,7 +8,7 @@ NAME="mariadb"
 HASH=$(git describe --all --long --dirty --abbrev=10 --tags --always)
 REPOSITORY=$(git remote get-url --push origin)
 TIME=$(TZ=UTC date '+%FT%T.%N%:z')
-BASE=alpine:3.18
+BASE=alpine:3.22
 TZ=$(timedatectl | awk '/Time zone:/{ print $3 }')
 
 source VERSIONS

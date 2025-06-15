@@ -4,11 +4,11 @@
 # docker run --name db -p 3306:3306 -v $(pwd)/datadir:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_DATABASE=casa -e MYSQL_USER=jose -e MYSQL_PASSWORD=hola -d mariadb
 # docker exec mariadb sh -c 'exec mysqldump --all-databases -uroot -p"secret"' > dump.sql
 
-ARG BASE=alpine:3.18
+ARG BASE=alpine:3.22
 FROM $BASE
 
 ARG VERSION=1
-ARG APPVERSION=10.11
+ARG APPVERSION=11
 ARG TIME=1970-00-00T00:00:00.00Z
 ARG HASH=undefined
 ARG REPOSITORY="https://github.com/jriguera/docker-mariadb"
